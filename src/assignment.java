@@ -1,125 +1,111 @@
-import java.util.ArrayList;
+import java.util.Arrays;
 
-class Transaction {
-    String id;
-    double fee;
-    String timestamp; // HH:mm format
+class Client {
+    String name;
+    int riskScore;
+    double accountBalance;
 
-    public Transaction(String id, double fee, String timestamp) {
-        this.id = id;
-        this.fee = fee;
-        this.timestamp = timestamp;
+    public Client(String name, int riskScore, double accountBalance) {
+        this.name = name;
+        this.riskScore = riskScore;
+        this.accountBalance = accountBalance;
     }
 
     @Override
     public String toString() {
-        return id + ":" + fee + "@" + timestamp;
+        return name + ":" + riskScore + " (Bal:" + accountBalance + ")";
     }
 }
 
 public class assignment {
 
-    // 🔵 Bubble Sort (by fee only)
-    public static void bubbleSortByFee(ArrayList<Transaction> list) {
-        int n = list.size();
+    // 🔵 Bubble Sort (Ascending by riskScore)
+    public static void bubbleSortAsc(Client[] arr) {
+        int n = arr.length;
         int swaps = 0;
+
+        System.out.println("\nBubble Sort Steps:");
 
         for (int i = 0; i < n - 1; i++) {
             boolean swapped = false;
 
             for (int j = 0; j < n - i - 1; j++) {
-                if (list.get(j).fee > list.get(j + 1).fee) {
-                    Transaction temp = list.get(j);
-                    list.set(j, list.get(j + 1));
-                    list.set(j + 1, temp);
-                    swapped = true;
+                if (arr[j].riskScore > arr[j + 1].riskScore) {
+
+                    // swap
+                    Client temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+
                     swaps++;
+                    swapped = true;
+
+                    // visualize swap
+                    System.out.println("Swap: " + arr[j] + " <-> " + arr[j + 1]);
                 }
             }
 
-            if (!swapped) {
-                System.out.println("Early termination at pass " + (i + 1));
-                break;
-            }
+            if (!swapped) break; // early termination
         }
 
-        System.out.println("Bubble Sort swaps: " + swaps);
+        System.out.println("Total swaps: " + swaps);
     }
 
-    // 🟢 Insertion Sort (by fee + timestamp)
-    public static void insertionSortByFeeAndTime(ArrayList<Transaction> list) {
-        int n = list.size();
+    // 🟢 Insertion Sort (DESC by riskScore, then accountBalance)
+    public static void insertionSortDesc(Client[] arr) {
+        int n = arr.length;
 
         for (int i = 1; i < n; i++) {
-            Transaction key = list.get(i);
+            Client key = arr[i];
             int j = i - 1;
 
-            while (j >= 0 && compare(list.get(j), key) > 0) {
-                list.set(j + 1, list.get(j));
+            while (j >= 0 && compare(arr[j], key) < 0) {
+                arr[j + 1] = arr[j];
                 j--;
             }
 
-            list.set(j + 1, key);
+            arr[j + 1] = key;
         }
     }
 
-    // Comparator (fee first, then timestamp)
-    private static int compare(Transaction t1, Transaction t2) {
-        if (t1.fee != t2.fee) {
-            return Double.compare(t1.fee, t2.fee);
+    // Comparator for DESC sorting
+    private static int compare(Client c1, Client c2) {
+        if (c1.riskScore != c2.riskScore) {
+            return Integer.compare(c1.riskScore, c2.riskScore); // ASC logic
         }
-        return t1.timestamp.compareTo(t2.timestamp);
+        return Double.compare(c1.accountBalance, c2.accountBalance);
     }
 
-    // 🔴 Outlier Detection (>50)
-    public static void detectOutliers(ArrayList<Transaction> list) {
-        System.out.println("\nHigh-fee outliers (>50):");
-        boolean found = false;
+    // 🔴 Get Top 10 highest risk clients
+    public static void printTopRisks(Client[] arr, int topK) {
+        System.out.println("\nTop " + topK + " Highest Risk Clients:");
 
-        for (Transaction t : list) {
-            if (t.fee > 50) {
-                System.out.println(t);
-                found = true;
-            }
-        }
-
-        if (!found) {
-            System.out.println("None");
+        for (int i = 0; i < Math.min(topK, arr.length); i++) {
+            System.out.println((i + 1) + ". " + arr[i]);
         }
     }
 
-    // 🚀 Process based on batch size
-    public static void processTransactions(ArrayList<Transaction> list) {
-        int size = list.size();
-
-        if (size <= 100) {
-            System.out.println("\nUsing Bubble Sort (by fee)...");
-            bubbleSortByFee(list);
-        } else if (size <= 1000) {
-            System.out.println("\nUsing Insertion Sort (fee + timestamp)...");
-            insertionSortByFeeAndTime(list);
-        } else {
-            System.out.println("\nLarge dataset - advanced sort recommended");
-        }
-
-        System.out.println("\nSorted Transactions:");
-        for (Transaction t : list) {
-            System.out.println(t);
-        }
-
-        detectOutliers(list);
-    }
-
-    // 🧪 Main Method
+    // 🚀 Main Method
     public static void main(String[] args) {
-        ArrayList<Transaction> transactions = new ArrayList<>();
 
-        // Sample Input
-        transactions.add(new Transaction("id1", 10.5, "10:00"));
-        transactions.add(new Transaction("id2", 25.0, "09:30"));
-        transactions.add(new Transaction("id3", 5.0, "10:15"));
+        Client[] clients = {
+                new Client("clientC", 80, 5000),
+                new Client("clientA", 20, 10000),
+                new Client("clientB", 50, 7000)
+        };
 
-        processTransactions(transactions);
+        // 🔵 Bubble Sort (Ascending)
+        bubbleSortAsc(clients);
+        System.out.println("\nAfter Bubble Sort (ASC):");
+        System.out.println(Arrays.toString(clients));
+
+        // 🟢 Insertion Sort (Descending)
+        insertionSortDesc(clients);
+        System.out.println("\nAfter Insertion Sort (DESC):");
+        System.out.println(Arrays.toString(clients));
+
+        // 🔴 Top Risk Clients
+        printTopRisks(clients, 10);
     }
 }
 
